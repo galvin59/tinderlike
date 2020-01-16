@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tinderlike/cardItem.dart';
+
+import 'model/cardItem.dart';
 
 class DeckCard extends StatefulWidget {
   const DeckCard({

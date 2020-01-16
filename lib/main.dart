@@ -1,10 +1,19 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:tinderlike/cardItem.dart';
-import 'package:http/http.dart' as http;
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tinderlike/bloc/deckBloc.dart';
+import 'package:tinderlike/bloc/deckState.dart';
+import 'package:tinderlike/include/global.dart';
+import 'bloc/deckEvent.dart';
 import 'deckCard.dart';
+import 'model/cardItem.dart';
+
+class SimpleBlocDelegate extends BlocDelegate {
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    super.onTransition(bloc, transition);
+    print(transition);
+  }
+}
 
 void main() => runApp(MyApp());
 
@@ -32,34 +41,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  double xPosition;
-  double yPosition;
-  double rotation = 0;
 
+  double xPosition, yPosition, rotation = 0;
   final double maxRotationOnEdgeOfScreen = 15;
   final double prcScreenToValidaiton = 1 / 3;
-
-  double initialxPosition;
-  double initialyPosition;
-  double initialxDragPosition;
-  double initialyDragPosition;
-
-  double cardWidth;
-  double cardHeight;
-  double cardRatio = 3 / 2;
-
-  double screenWidth;
-  double screenHeight;
+  double initialxPosition, initialyPosition, initialxDragPosition, initialyDragPosition;
+  double cardWidth, cardHeight, cardRatio = 3 / 2;
+  double screenWidth, screenHeight;
 
   Animation<double> rotationAnimation;
   AnimationController animationController;
   Animation<Offset> offsetAnimation;
 
-  List<CardItem> deck;
+  DeckBloc deckBloc = new DeckBloc(); 
 
   @override
   void initState() {
     super.initState();
+    BlocSupervisor.delegate = SimpleBlocDelegate();
     Future.delayed(Duration.zero, () {
       screenWidth = MediaQuery.of(context).size.width;
       screenHeight = MediaQuery.of(context).size.height;
@@ -72,7 +71,18 @@ class _MyHomePageState extends State<MyHomePage>
       animationController = AnimationController(
           duration: const Duration(milliseconds: 500), vsync: this);
     });
-    getCards();
+    deckBloc.listen((deckState) {
+      if (deckState is DeckStateLoaded) {
+        setState(() { });
+      } else if (deckState is DeckStateCardRefused) {
+        print("Card " + deckState.card.toString() + " refused");
+        setState(() { });
+      } else if (deckState is DeckStateCardAccepted) {
+        print("Card " + deckState.card.toString() + " accepted");
+        setState(() { });
+      }
+    });
+    deckBloc.add(DeckEventAppStarted());
   }
 
   void updateWhenDrag(DragUpdateDetails details) {
@@ -93,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage>
       } else {
         status = cardStatus.no;
       }
-      deck[0].status = status;
+      globalDeckRepository.getDeck()[0].status = status;
       rotation = (maxRotationOnEdgeOfScreen *
               distanceFromCenterX /
               (screenWidth / 2)) /
@@ -107,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage>
   void dragEnd(DragEndDetails details) {
     animationController.reset();
     print("dragEnd > Start");
+    var deck = globalDeckRepository.getDeck();
     setState(() {
       if (deck[0].status == cardStatus.none) {
         offsetAnimation = Tween<Offset>(
@@ -136,10 +147,8 @@ class _MyHomePageState extends State<MyHomePage>
     xPosition = initialxPosition;
     yPosition = initialyPosition;
     offsetAnimation = null;
-    setState(() {
-      deck.removeAt(0);
-    });
     animationController.removeStatusListener(cardThrownAwayListener);
+    deckBloc.add(DeckEventTopCardThrownAway());
   }
 
   void dragStart(DragStartDetails details) {
@@ -151,21 +160,6 @@ class _MyHomePageState extends State<MyHomePage>
       rotationAnimation = AlwaysStoppedAnimation(0);
       offsetAnimation = AlwaysStoppedAnimation(Offset.zero);
     });
-  }
-
-  getCards() async {
-    final String APIKey = "#getAPIkeyFromhttps://generated.photos";
-    final response =
-        await http.get('https://api.generated.photos/api/v1/faces?api_key=' + APIKey);
-    if (response.statusCode == 200) {
-      var json = jsonDecode(response.body);
-      deck = List<CardItem>();
-      for (int i = 0; i < json["faces"].length; i++) {
-        var card = CardItem.fromJson(jsonEncode(json["faces"][i]));
-        deck.add(card);
-      }
-      setState(() {});
-    }
   }
 
   Widget getCard(CardItem _cardItem) {
@@ -207,6 +201,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Widget getStack() {
+    var deck = globalDeckRepository.getDeck();
     if (deck == null) {
       return Center(child: CircularProgressIndicator());
     }
