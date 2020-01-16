@@ -13,7 +13,7 @@ class DeckBloc extends Bloc<DeckEvent, DeckState> {
     if (event is DeckEventAppStarted) {
       yield DeckStateLoading();
       try {
-        var deck = await globalDeckRepository.fetchDeck();
+        await globalDeckRepository.fetchDeck();
         yield DeckStateLoaded();
       } catch(e) {
         yield DeckStateError();
