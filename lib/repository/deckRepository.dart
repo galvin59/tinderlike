@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:tinderlike/include/global.dart';
 import 'package:tinderlike/model/cardItem.dart';
 
 class DeckRepository {
@@ -11,8 +12,7 @@ class DeckRepository {
   }
 
   Future fetchDeck() async {
-    final String APIKey = "VeqefLfiWAVbChOwp_7nfg";
-    final response = await http.get('https://api.generated.photos/api/v1/faces?api_key=' + APIKey);
+    final response = await http.get('https://api.generated.photos/api/v1/faces?api_key=' + FacesAPIKey);
     if (response.statusCode == 200) {
       var json = jsonDecode(response.body);
       _deck = List<CardItem>();
