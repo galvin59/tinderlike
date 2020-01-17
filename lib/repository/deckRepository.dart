@@ -31,4 +31,8 @@ class DeckRepository {
     return result;
   }
 
+  void insertCard(CardItem card, int index) {
+    _deck.insert(index, card);
+  }
+
 }

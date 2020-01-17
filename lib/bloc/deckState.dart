@@ -20,4 +20,6 @@ class DeckStateCardRefused extends DeckState {
   DeckStateCardRefused({this.card});
 }
 
+class DeckStateCardAdded extends DeckState {}
+
 class DeckStateError extends DeckState{}

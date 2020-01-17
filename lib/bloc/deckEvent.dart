@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:tinderlike/model/cardItem.dart';
 
 abstract class DeckEvent extends Equatable {
   DeckEvent([List props = const []]) : super(props);
@@ -17,4 +18,12 @@ class DeckEventCardsFinishedLoading extends DeckEvent {
 class DeckEventTopCardThrownAway extends DeckEvent {
   @override
   String toString() => 'DeckEventTopCardThrownAway';
+}
+
+class DeckEventAddCard extends DeckEvent {
+  @override
+  String toString() => 'DeckEventAddCard';
+  final CardItem card;
+  final int index;
+  DeckEventAddCard({this.card, this.index});
 }

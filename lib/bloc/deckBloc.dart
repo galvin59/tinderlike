@@ -27,7 +27,10 @@ class DeckBloc extends Bloc<DeckEvent, DeckState> {
       } else {
         yield DeckStateError();
       }
-    }   
+    } else if (event is DeckEventAddCard) {
+      globalDeckRepository.insertCard(event.card, event.index);
+      yield DeckStateCardAdded();
+    }
 
   }
 }

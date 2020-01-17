@@ -80,6 +80,8 @@ class _MyHomePageState extends State<MyHomePage>
       } else if (deckState is DeckStateCardAccepted) {
         print("Card " + deckState.card.toString() + " accepted");
         setState(() { });
+      } else if (deckState is DeckStateCardAdded) {
+        setState(() { });
       }
     });
     deckBloc.add(DeckEventAppStarted());
@@ -215,6 +217,32 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: getStack());
+    return Scaffold(body: getStack(),
+    bottomNavigationBar: Container(
+          height: 65,
+          color: Theme.of(context).primaryColor,
+          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+          child: Row(
+            children: <Widget>[
+              FlatButton(
+                child: Text("Add top"),
+                onPressed: () {
+                  CardItem _card = CardItem()
+                  ..pictureURL = "https://www.ixxiyourworld.com/media/1676571/Mickey-Mouse-2.jpg?mode=crop&width=562&height=613";
+                  deckBloc.add(DeckEventAddCard(card: _card, index: 0));
+                },
+              ),
+              FlatButton(
+                child: Text("Add 2nd"),
+                onPressed: () {
+                  CardItem _card = CardItem()
+                  ..pictureURL = "https://www.ixxiyourworld.com/media/1676571/Mickey-Mouse-2.jpg?mode=crop&width=562&height=613";
+                  deckBloc.add(DeckEventAddCard(card: _card, index: 1));
+                },
+              ),
+            ],
+          ),
+        )
+        );
   }
 }
