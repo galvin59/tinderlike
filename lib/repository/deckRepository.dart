@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:tinderlike/include/global.dart';
+import 'package:tinderlike/include/key.dart';
 import 'package:tinderlike/model/cardItem.dart';
 
 class DeckRepository {
